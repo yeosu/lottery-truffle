@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Users (회원 기본 정보)
+model User {
+  id            String         @id @default(uuid()) @db.Uuid
+  email         String         @unique
+  passwordHash  String?
+  nickname      String
+  authProvider  String         @default("LOCAL") // "LOCAL", "GOOGLE", "KAKAO" 등
+  providerId    String?
+  role          String         @default("USER") // "USER", "ADMIN"
+  status        String         @default("ACTIVE") // "ACTIVE", "DORMANT", "BANNED"
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  lastLoginAt   DateTime?
+  
+  // 관계 정의
+  snsAccounts   SnsAccount[]   // User 한 명은 여러 SNS 계정을 가질 수 있음
+  profilePages  ProfilePage[]  // User 한 명은 여러 프로필 페이지를 가질 수 있음
+  abuseReports  AbuseReport[]  // User 한 명은 여러 신고를 할 수 있음
+}
+
+// SNS_Accounts (SNS 주소 정보)
+model SnsAccount {
+  id        Int      @id @default(autoincrement())
+  userId    String   @db.Uuid
+  snsType   String   // "INSTAGRAM", "YOUTUBE", "GITHUB" 등
+  snsUrl    String   // 실제 SNS 프로필 주소
+  createdAt DateTime @default(now())
+  
+  // 관계 정의
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+}
+
+// Profile_Pages (내 프로필 페이지 URL 정보)
+model ProfilePage {
+  id            Int            @id @default(autoincrement())
+  userId        String         @db.Uuid
+  pagePath      String         @unique // 고유 URL 경로
+  designConcept String?        // 사용자가 입력한 디자인 설명 텍스트
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  // 관계 정의
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contents      ProfileContent[] // 한 페이지는 여러 콘텐츠를 가질 수 있음
+  visits        PageVisit[]     // 한 페이지는 여러 방문 기록을 가질 수 있음
+  abuseReports  AbuseReport[]   // 한 페이지는 여러 신고를 받을 수 있음
+  
+  @@index([userId])
+}
+
+// Profile_Content (프로필 페이지 콘텐츠)
+model ProfileContent {
+  id            Int         @id @default(autoincrement())
+  profileId     Int
+  contentType   String      // "IMAGE", "BIO_TEXT", "LINK" 등
+  contentValue  String      @db.Text // 이미지의 경우 'URL', 텍스트의 경우 '실제 글 내용'
+  displayOrder  Int
+  createdAt     DateTime    @default(now())
+  
+  // 관계 정의
+  profilePage   ProfilePage @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  
+  @@index([profileId])
+}
+
+// Page_Visits (페이지 방문 기록)
+model PageVisit {
+  id           Int         @id @default(autoincrement())
+  profileId    Int
+  visitedAt    DateTime    @default(now())
+  visitorIpHash String?     // 방문자 IP 주소의 해시값 (개인정보보호)
+  
+  // 관계 정의
+  profilePage  ProfilePage @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  
+  @@index([profileId])
+  @@index([visitedAt]) // 날짜별 통계를 위한 인덱스
+}
+
+// Abuse_Reports (불량/문제 페이지 신고)
+model AbuseReport {
+  id               Int         @id @default(autoincrement())
+  reportedProfileId Int
+  reporterUserId   String?     @db.Uuid
+  reportCategory   String      // "SPAM", "HATE_SPEECH", "PORNOGRAPHY" 등
+  reportDetails    String?     @db.Text
+  status           String      @default("PENDING") // "PENDING", "REVIEWING", "RESOLVED"
+  createdAt        DateTime    @default(now())
+  
+  // 관계 정의
+  reportedProfile  ProfilePage @relation(fields: [reportedProfileId], references: [id], onDelete: Cascade)
+  reporterUser     User?       @relation(fields: [reporterUserId], references: [id], onDelete: SetNull)
+  
+  @@index([reportedProfileId])
+  @@index([reporterUserId])
+}
