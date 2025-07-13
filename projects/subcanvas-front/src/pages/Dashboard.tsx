@@ -6,7 +6,7 @@ import { FiPlus, FiEdit2, FiTrash2, FiEye, FiBarChart2, FiLink, FiCopy, FiDownlo
 import { useAuth } from '../contexts/AuthContext';
 import profileService from '../api/profileService';
 import type { ProfilePage } from '../types';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG as QRCode } from 'qrcode.react';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
