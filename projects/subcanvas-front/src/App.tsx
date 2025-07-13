@@ -15,6 +15,9 @@ import Dashboard from './pages/Dashboard'
 import ProfileEditor from './pages/ProfileEditor'
 import ProfileView from './pages/ProfileView'
 import NotFound from './pages/NotFound'
+import ForgotPassword from './pages/ForgotPassword'
+import Settings from './pages/Settings'
+import Explore from './pages/Explore'
 
 // 컨텍스트
 import { AuthProvider } from './contexts/AuthContext'
@@ -59,14 +62,14 @@ function App() {
             {/* 메인 레이아웃 라우트 */}
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Home />} />
-              <Route path="explore" element={<div>탐색 페이지 (개발 예정)</div>} />
+              <Route path="explore" element={<Explore />} />
             </Route>
 
             {/* 인증 레이아웃 라우트 */}
             <Route path="/auth" element={<AuthLayout />}>
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
-              <Route path="forgot-password" element={<div>비밀번호 찾기 (개발 예정)</div>} />
+              <Route path="forgot-password" element={<ForgotPassword />} />
               <Route path="*" element={<Navigate to="/auth/login" replace />} />
             </Route>
 
@@ -75,7 +78,7 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="profile/edit/:profileId" element={<ProfileEditor />} />
               <Route path="profile/new" element={<ProfileEditor isNew={true} />} />
-              <Route path="settings" element={<div>설정 페이지 (개발 예정)</div>} />
+              <Route path="settings" element={<Settings />} />
             </Route>
 
             {/* 프로필 뷰 라우트 */}
