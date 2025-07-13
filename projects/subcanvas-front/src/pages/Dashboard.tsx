@@ -1,12 +1,58 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import styled from '@emotion/styled';
-import { motion } from 'framer-motion';
 import { FiPlus, FiEdit2, FiTrash2, FiEye, FiBarChart2, FiLink, FiCopy, FiDownload, FiShare2 } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import profileService from '../api/profileService';
 import type { ProfilePage } from '../types';
 import { QRCodeSVG as QRCode } from 'qrcode.react';
+
+// 스타일 컴포넌트 임포트
+import {
+  DashboardContainer,
+  DashboardHeader,
+  DashboardTitle,
+  WelcomeMessage,
+  SectionTitle,
+  ProfileGrid,
+  ProfileCard,
+  ProfileCardHeader,
+  ProfileName,
+  ProfileDate,
+  ProfileCardBody,
+  ProfileDesignConcept,
+  ProfileStats,
+  StatItem,
+  ProfileCardActions,
+  ActionButton,
+  ActionButtonLink,
+  NewProfileCard,
+  NewProfileContent,
+  PlusIcon,
+  NewProfileText,
+  EmptyState,
+  EmptyStateText,
+  EmptyStateAction,
+  ActivitySection,
+  ComingSoon,
+  LoadingContainer,
+  LoadingSpinner,
+  ErrorMessage,
+  ModalOverlay,
+  Modal,
+  ModalTitle,
+  ModalContent,
+  ModalActions,
+  ModalButton,
+  QRCodeContainer,
+  QRCodeActions,
+  QRButton,
+  InterestSection,
+  InterestTitle,
+  InterestStats,
+  InterestStatItem,
+  InterestLevel,
+  InterestProgress,
+  InterestLevelBadge
+} from './Dashboard.styles';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -17,9 +63,6 @@ const Dashboard: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<ProfilePage | null>(null);
   const [showQrModal, setShowQrModal] = useState(false);
-  const [visitStats, setVisitStats] = useState<{ date: string; count: number }[]>([]);
-  const [statsLoading, setStatsLoading] = useState(false);
-  const [statsPeriod, setStatsPeriod] = useState<'day' | 'week' | 'month'>('week');
 
   useEffect(() => {
     const fetchUserProfiles = async () => {
@@ -293,463 +336,5 @@ const Dashboard: React.FC = () => {
     </DashboardContainer>
   );
 };
-
-// 스타일 컴포넌트
-const DashboardContainer = styled.div`
-  padding: 1rem 0;
-`;
-
-const DashboardHeader = styled.div`
-  margin-bottom: 2rem;
-`;
-
-const DashboardTitle = styled.h1`
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem;
-  color: var(--color-text);
-`;
-
-const WelcomeMessage = styled.p`
-  font-size: 1.125rem;
-  color: var(--color-secondary);
-  margin: 0;
-`;
-
-const SectionTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 2rem 0 1rem;
-  color: var(--color-text);
-`;
-
-const ProfileGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-`;
-
-const ProfileCard = styled.div`
-  background-color: var(--color-background);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s, box-shadow 0.2s;
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  }
-`;
-
-const ProfileCardHeader = styled.div`
-  padding: 1.25rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-`;
-
-const ProfileName = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem;
-  color: var(--color-text);
-`;
-
-const ProfileDate = styled.p`
-  font-size: 0.875rem;
-  color: var(--color-secondary);
-  margin: 0;
-`;
-
-const ProfileCardBody = styled.div`
-  padding: 1.25rem;
-  flex: 1;
-`;
-
-const ProfileDesignConcept = styled.p`
-  font-size: 0.875rem;
-  color: var(--color-text);
-  margin: 0 0 1rem;
-  line-height: 1.5;
-`;
-
-const ProfileStats = styled.div`
-  display: flex;
-  gap: 1rem;
-`;
-
-const StatItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--color-secondary);
-`;
-
-const ProfileCardActions = styled.div`
-  display: flex;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-`;
-
-const ActionButtonLink = styled(Link)`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem;
-  background: none;
-  border: none;
-  color: var(--color-text);
-  cursor: pointer;
-  transition: background-color 0.2s;
-  text-decoration: none;
-  
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-  
-  &.delete:hover {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: var(--color-error);
-  }
-  
-  &:not(:last-child) {
-    border-right: 1px solid rgba(0, 0, 0, 0.1);
-  }
-`;
-
-const ActionButton = styled.button`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem;
-  background: none;
-  border: none;
-  color: var(--color-text);
-  cursor: pointer;
-  transition: background-color 0.2s;
-  
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-  
-  &.delete:hover {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: var(--color-error);
-  }
-  
-  &:not(:last-child) {
-    border-right: 1px solid rgba(0, 0, 0, 0.1);
-  }
-`;
-
-const NewProfileCard = styled(Link)`
-  background-color: var(--color-background);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  text-decoration: none;
-  border: 2px dashed rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, border-color 0.2s;
-  
-  &:hover {
-    transform: translateY(-4px);
-    border-color: var(--color-primary);
-  }
-`;
-
-const NewProfileContent = styled.div`
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  height: 100%;
-`;
-
-const PlusIcon = styled.div`
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-primary);
-`;
-
-const NewProfileText = styled.p`
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--color-text);
-  margin: 0;
-  text-align: center;
-`;
-
-const EmptyState = styled.div`
-  padding: 3rem;
-  text-align: center;
-  background-color: var(--color-background);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  margin-bottom: 2rem;
-`;
-
-const EmptyStateText = styled.p`
-  font-size: 1.125rem;
-  color: var(--color-secondary);
-  margin: 0 0 1.5rem;
-`;
-
-const EmptyStateAction = styled(Link)`
-  display: inline-block;
-  background-color: var(--color-primary);
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--border-radius);
-  text-decoration: none;
-  font-weight: 500;
-  transition: background-color 0.2s;
-  
-  &:hover {
-    background-color: var(--color-secondary);
-  }
-`;
-
-const ActivitySection = styled.div`
-  background-color: var(--color-background);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  padding: 2rem;
-  margin-bottom: 2rem;
-`;
-
-const ComingSoon = styled.div`
-  text-align: center;
-  padding: 2rem;
-  color: var(--color-secondary);
-`;
-
-const ErrorMessage = styled.div`
-  padding: 1rem;
-  background-color: rgba(239, 68, 68, 0.1);
-  border-radius: var(--border-radius);
-  color: var(--color-error);
-  margin-bottom: 1.5rem;
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem;
-  gap: 1rem;
-`;
-
-const LoadingSpinner = styled.div`
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
-  border-top-color: var(--color-primary);
-  animation: spin 1s ease-in-out infinite;
-  
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-`;
-
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-`;
-
-const Modal = styled.div`
-  background-color: var(--color-background);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  width: 90%;
-  max-width: 400px;
-  padding: 1.5rem;
-`;
-
-const ModalTitle = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0 0 1rem;
-  color: var(--color-text);
-`;
-
-const ModalContent = styled.p`
-  font-size: 1rem;
-  color: var(--color-text);
-  margin: 0 0 1.5rem;
-`;
-
-const ModalActions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-`;
-
-const ModalButton = styled.button`
-  padding: 0.5rem 1rem;
-  border-radius: var(--border-radius);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  
-  &:not(.delete) {
-    background: none;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    color: var(--color-text);
-    
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.05);
-    }
-  }
-  
-  &.delete {
-    background-color: var(--color-error);
-    border: none;
-    color: white;
-    
-    &:hover {
-      background-color: #c53030;
-    }
-  }
-`;
-
-// 추가 스타일 컴포넌트
-const QRCodeContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin: 1rem 0;
-`;
-
-const QRCodeActions = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin: 1rem 0;
-`;
-
-const QRButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  border: none;
-  border-radius: 4px;
-  background-color: var(--color-primary);
-  color: white;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  
-  &:hover {
-    background-color: var(--color-primary-dark);
-  }
-`;
-
-const InterestSection = styled.div`
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-`;
-
-const InterestTitle = styled.h4`
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 1rem;
-  color: var(--color-text);
-`;
-
-const InterestStats = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-`;
-
-const InterestStatItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  
-  span {
-    font-size: 0.75rem;
-    color: var(--color-secondary);
-  }
-  
-  strong {
-    font-size: 1.125rem;
-    color: var(--color-text);
-  }
-`;
-
-const InterestLevel = styled.div<{ level: number }>`
-  font-size: 1.125rem;
-  font-weight: bold;
-  color: ${props => {
-    if (props.level >= 10) return 'var(--color-success)';
-    if (props.level >= 5) return 'var(--color-warning)';
-    return 'var(--color-primary)';
-  }};
-`;
-
-const InterestProgress = styled.progress`
-  width: 100%;
-  height: 8px;
-  border-radius: 4px;
-  overflow: hidden;
-  
-  &::-webkit-progress-bar {
-    background-color: rgba(0, 0, 0, 0.05);
-    border-radius: 4px;
-  }
-  
-  &::-webkit-progress-value {
-    background-color: var(--color-primary);
-    border-radius: 4px;
-  }
-`;
-
-const InterestLevelBadge = styled.div<{ level: number }>`
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  background-color: ${props => {
-    if (props.level >= 10) return 'rgba(34, 197, 94, 0.1)';
-    if (props.level >= 5) return 'rgba(245, 158, 11, 0.1)';
-    return 'rgba(59, 130, 246, 0.1)';
-  }};
-  color: ${props => {
-    if (props.level >= 10) return 'var(--color-success)';
-    if (props.level >= 5) return 'var(--color-warning)';
-    return 'var(--color-primary)';
-  }};
-  margin-left: auto;
-`;
 
 export default Dashboard;
