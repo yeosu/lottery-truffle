@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiShare2, FiCopy, FiTwitter, FiInstagram, FiGithub, FiFacebook } from 'react-icons/fi';
+import { FiShare2, FiCopy, FiTwitter, FiInstagram, FiGithub, FiFacebook, FiCode } from 'react-icons/fi';
+import ProfileQRCode from '../components/profile/ProfileQRCode';
 import profileService from '../api/profileService';
 import type { ProfilePage, ProfileContent } from '../types';
 
@@ -12,6 +13,7 @@ const ProfileView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -40,6 +42,15 @@ const ProfileView: React.FC = () => {
     navigator.clipboard.writeText(url);
     alert('링크가 클립보드에 복사되었습니다.');
     setShowShareModal(false);
+  };
+
+  const handleShowQRCode = () => {
+    setShowQRModal(true);
+    setShowShareModal(false);
+  };
+  
+  const handleCloseQRModal = () => {
+    setShowQRModal(false);
   };
 
   const handleShareSocial = (platform: string) => {
@@ -143,12 +154,10 @@ const ProfileView: React.FC = () => {
         {profile.contents && profile.contents
           .sort((a, b) => a.displayOrder - b.displayOrder)
           .map((content) => (
-            <ContentItem
-              key={content.id}
-              as={motion.div}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
+            <ContentItem 
+              key={content.id} 
+              style={{opacity: 1, transform: 'translateY(0)'}} 
+              className="animated-content"
             >
               {renderContent(content)}
             </ContentItem>
@@ -163,19 +172,41 @@ const ProfileView: React.FC = () => {
 
       <AnimatePresence>
         {showShareModal && (
-          <ModalOverlay
-            as={motion.div}
+          <motion.div 
+            className="modal-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowShareModal(false)}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 100
+            }}
           >
-            <Modal
-              as={motion.div}
+            <motion.div 
+              className="modal"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
+              style={{
+                backgroundColor: '#fff',
+                borderRadius: '0.5rem',
+                padding: '1.5rem',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+                maxWidth: '90vw',
+                width: '400px',
+                maxHeight: '90vh',
+                overflowY: 'auto'
+              }}
             >
               <ModalTitle>프로필 공유하기</ModalTitle>
               <ShareOptions>
@@ -184,6 +215,12 @@ const ProfileView: React.FC = () => {
                     <FiCopy />
                   </ShareIconWrapper>
                   <ShareOptionText>링크 복사</ShareOptionText>
+                </ShareOption>
+                <ShareOption onClick={handleShowQRCode}>
+                  <ShareIconWrapper>
+                    <FiCode />
+                  </ShareIconWrapper>
+                  <ShareOptionText>QR 코드</ShareOptionText>
                 </ShareOption>
                 <ShareOption onClick={() => handleShareSocial('twitter')}>
                   <ShareIconWrapper className="twitter">
@@ -201,8 +238,63 @@ const ProfileView: React.FC = () => {
               <CloseButton onClick={() => setShowShareModal(false)}>
                 닫기
               </CloseButton>
-            </Modal>
-          </ModalOverlay>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showQRModal && (
+          <motion.div 
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={handleCloseQRModal}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 100
+            }}
+          >
+            <motion.div 
+              className="modal"
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              style={{
+                backgroundColor: '#fff',
+                borderRadius: '0.5rem',
+                padding: '1.5rem',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+                maxWidth: '90vw',
+                width: '400px',
+                maxHeight: '90vh',
+                overflowY: 'auto'
+              }}
+            >
+              <ModalTitle>QR 코드</ModalTitle>
+              <CloseButton onClick={handleCloseQRModal}>&times;</CloseButton>
+              {profile && (
+                <QRCodeContainer>
+                  <ProfileQRCode 
+                    profileUrl={window.location.href} 
+                    size={250} 
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                  />
+                </QRCodeContainer>
+              )}
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </ProfileContainer>
@@ -352,29 +444,6 @@ const FooterLink = styled(Link)`
   &:hover {
     text-decoration: underline;
   }
-`;
-
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-`;
-
-const Modal = styled.div`
-  background-color: var(--color-background);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  width: 100%;
-  max-width: 400px;
-  padding: 1.5rem;
 `;
 
 const ModalTitle = styled.h3`
@@ -540,5 +609,11 @@ const FiLink: React.FC = () => (
     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
   </svg>
 );
+
+const QRCodeContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
+`;
 
 export default ProfileView;
